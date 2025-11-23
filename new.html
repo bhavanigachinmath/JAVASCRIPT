@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+ let count=0;
+    function increment(){
+        count++;
+        document.getElementById("count").innerHTML=count;
+        document.getElementById("body").style.color="red";
+        document.getElementById("body").style.backgroundColor="black";
+    }
+  function decrement(){
+        count--;
+        document.getElementById("count").innerHTML=count;
+        document.getElementById("body").style.color="red";
+        document.getElementById("body").style.backgroundColor="black";
+    }
+    function incrementBy5(){
+        count += 5;
+        document.getElementById("count").innerHTML = count;
+        document.getElementById("body").style.color = "red";
+        document.getElementById("body").style.backgroundColor = "black";
+    }
+    (function(){
+        // Inject responsive CSS
+        const css = `
+            :root{
+                --bg:#fff; --fg:#111; --btn-bg:#f0f0f0; --btn-fg:#111;
+            }
+            body{
+                margin:0;
+                font-family: Inter, Roboto, Arial, sans-serif;
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                justify-content:center;
+                min-height:100vh;
+                gap:0.75rem;
+                background:var(--bg);
+                color:var(--fg);
+                transition: background-color .25s, color .25s;
+                padding:1rem;
+            }
+            #count{
+                font-weight:700;
+                font-size:4rem;
+                margin:0.25rem;
+                padding:.25rem .6rem;
+                border-radius:8px;
+                background:rgba(0,0,0,0.04);
+                min-width:5ch;
+                text-align:center;
+            }
+            .controls{ display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; }
+            button{
+                appearance:none;
+                border:0;
+                padding:.6rem 1rem;
+                border-radius:8px;
+                background:var(--btn-bg);
+                color:var(--btn-fg);
+                cursor:pointer;
+                font-size:1rem;
+                box-shadow:0 1px 2px rgba(0,0,0,0.08);
+                transition:transform .08s, box-shadow .12s, background-color .15s;
+            }
+            button:active{ transform: translateY(1px); }
+            /* status color themes */
+            body.positive{ --bg:#e6ffed; --fg:#0b6623; --btn-bg:#cdefd1; --btn-fg:#063b14; }
+            body.negative{ --bg:#fff3f3; --fg:#7a0b0b; --btn-bg:#ffd6d6; --btn-fg:#5b0000; }
+            body.neutral{ --bg:#f5f7fa; --fg:#111827; --btn-bg:#ffffff; --btn-fg:#111827; }
+            /* small screens */
+            @media (max-width:600px){
+                #count{ font-size:2.25rem; min-width:3ch; }
+                button{ padding:.5rem .8rem; font-size:.95rem; }
+            }
+            /* large screens */
+            @media (min-width:1200px){
+                #count{ font-size:6rem; }
+                button{ padding:.8rem 1.2rem; font-size:1.1rem; }
+            }
+        `;
+        const style = document.createElement('style');
+        style.textContent = css;
+        document.head.appendChild(style);
+
+        // Wrap existing buttons into a responsive container
+        const bodyEl = document.getElementById('body');
+        const existingButtons = Array.from(bodyEl.querySelectorAll('button'));
+        let controls = bodyEl.querySelector('.controls');
+        if(!controls){
+            controls = document.createElement('div');
+            controls.className = 'controls';
+            existingButtons.forEach(b => controls.appendChild(b));
+            bodyEl.appendChild(controls);
+        }
+
+        // Update visuals according to the numeric count (global `count`)
+        function updateVisuals(){
+            const display = document.getElementById('count');
+            const current = (typeof count === 'number') ? count : Number(display.textContent) || 0;
+            bodyEl.classList.remove('positive','negative','neutral');
+            if(current > 0) bodyEl.classList.add('positive');
+            else if(current < 0) bodyEl.classList.add('negative');
+            else bodyEl.classList.add('neutral');
+        }
+
+        // Observe changes to the displayed counter and update theme
+        const countNode = document.getElementById('count');
+        if(countNode){
+            const mo = new MutationObserver(updateVisuals);
+            mo.observe(countNode, { childList: true, characterData: true, subtree: true });
+        }
+
+        // Initialize on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateVisuals);
+        } else updateVisuals();
+
+        // Keyboard shortcuts: ArrowUp/ArrowDown for +/-1, PageUp/PageDown for +/-5, R to reset
+        document.addEventListener('keydown', (e) => {
+            if(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+            if(e.key === 'ArrowUp') increment();
+            else if(e.key === 'ArrowDown') decrement();
+            else if(e.key === 'PageUp') incrementBy5();
+            else if(e.key === 'PageDown') decrementBy5();
+            else if(e.key === 'r' || e.key === 'R') reset();
+        });
+    })();
+    function decrementBy5(){
+        count -= 5;
+        document.getElementById("count").innerHTML = count;
+        document.getElementById("body").style.color = "red";
+        document.getElementById("body").style.backgroundColor = "black";
+    }
+    function reset(){
+        count = 0;
+        document.getElementById("count").innerHTML = count;
+        const body = document.getElementById("body");
+        body.style.color = "";
+        body.style.backgroundColor = "";
+    }
+    </script>
+</head>
+<body id="body">
+    <p id="count">0</p>
+    <button onclick="increment()">
+        Increment
+    </button>
+    <button onclick="decrement()">
+        Decrement
+    </button>
+    <button onclick="incrementBy5()">
+        Increment by 5
+    </button>
+    <button onclick="decrementBy5()">
+        Decrement by 5
+    </button>
+    <button onclick="reset()">
+        Reset
+    </button>
+</body>
+</html>
